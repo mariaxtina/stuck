@@ -7,11 +7,12 @@ const cookieParser = require('cookie-parser');
 const bodyParser  = require("body-parser");
 const sass        = require("node-sass-middleware");
 const app         = express();
+
+//TODO: implement - placeholder for now
 //const bootstrap   = require('bootstrap');
 
 const knexConfig  = require("./knexfile");
 const knex        = require("knex")(knexConfig[ENV]);
-
 const usersRoutes = require("./routes/users");
 
 app.set("view engine", "ejs");
@@ -25,6 +26,7 @@ app.use("/styles", sass({
 }));
 app.use(express.static("public"));
 
+//TODO: update users
 // Users JSON api
 // app.use("/api/users", usersRoutes(knex));
 
@@ -33,6 +35,7 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
+//TODO: add error handling
 app.get('/a/:admin_digest', (req, res) => {
   // check and redirect
   // set a cookie
@@ -47,7 +50,6 @@ app.get('/a/:admin_digest', (req, res) => {
       res.redirect(`/polls/${id}/edit`);
     }
   });
-
 });
 
 app.post("/polls", (req, res) => {
@@ -74,16 +76,17 @@ app.get("/polls/:id/edit", (req, res) => {
       if (participants.length == 0) {
         form_participants = [{},{},{}];
       }
-      res.render("poll_edit", {poll: polls[0],
-                               choices: form_choices,
-                               participants: form_participants});
-     });
+      res.render("poll_edit", {
+        poll: polls[0],
+        choices: form_choices,
+        participants: form_participants
+      });
+    });
     });
   });
+});
 
-  });
-
-
+//remove all empty .then()
 app.put("/polls/:id", (req, res) => {
   let poll_id = req.params.id;
   console.log(req.body.poll)
@@ -91,7 +94,6 @@ app.put("/polls/:id", (req, res) => {
                                              description: req.body.poll.description}).then();
   knex('choices').where({poll_id: poll_id}).delete().then();
   knex('participants').where({poll_id: poll_id}).delete().then();
-
 
   for(choice of req.body.poll.choices) {
     knex('choices').insert({title: choice.title,
@@ -109,23 +111,26 @@ app.put("/polls/:id", (req, res) => {
 app.get("/polls/:id/results", (req, res) => {
   let poll_id = req.params.id;
 
-  knex.raw(`SELECT polls.id as PollID, choices.id as ChoiceID, SUM(rankings.ranking) as Count, choices.title as ChoiceTitle
+  knex
+    .raw(`SELECT polls.id as PollID, choices.id as ChoiceID, SUM(rankings.ranking) as Count,
+            choices.title as ChoiceTitle
             FROM polls
             JOIN choices ON choices.poll_id = polls.id
             JOIN rankings ON (rankings.choice_id = choices.id)
-            WHERE polls.id = ${poll_id} GROUP BY polls.id, choices.id, choices.title ORDER BY Count`).then(function(results){
-              console.log(results.rows);
-
-              res.render("poll_results", {id: req.params.id,
-                                          results: results.rows
-                                         });
-            })
+            WHERE polls.id = ${poll_id} GROUP BY polls.id, choices.id, choices.title ORDER BY Count`)
+    .then(function(results){
+      console.log(results.rows);
+      res.render("poll_results", {
+        id: req.params.id,
+        results: results.rows
+      });
+    })
 });
 
 app.get("/p/:participant_digest", (req, res) => {
   // check if digest correct // find which poll it correspdonds to
   // create a participant // set a cookie
-    knex('polls').where({participant_digest: req.params.participant_digest})
+  knex('polls').where({participant_digest: req.params.participant_digest})
     .select('id').then(function(results) {
 
       if(results.length == 0) {
@@ -137,8 +142,8 @@ app.get("/p/:participant_digest", (req, res) => {
           res.cookie("participant_id", participant_id);
           res.redirect(`/rank/${poll_id}`);
         });
-      }
-  });
+        }
+    });
 });
 
 app.get("/rank/:poll_id", (req, res) => {
@@ -150,13 +155,9 @@ app.get("/rank/:poll_id", (req, res) => {
       console.log(choices);
         res.render("poll_taking", {poll: polls[0],
                                   choices: choices});
-     })
+    })
   })
 });
-
-/*
-  { rankings: [ id1 id2 id3 id4 id5 ]}
-*/
 
 app.post("/rank/:poll_id", (req, res) => {
 
@@ -171,17 +172,15 @@ app.post("/rank/:poll_id", (req, res) => {
 
   req.body.ranking.forEach(function(choice_id, index){
 
-     knex('rankings').insert({participant_id: req.cookies.participant_id,
-                           choice_id: choice_id,
-                           ranking: index
-                         }).then(function(result) {
-                          rankingsCreated += 1;
-                          onAllComplete();
-  });
+    knex('rankings').insert({participant_id: req.cookies.participant_id,
+                              choice_id: choice_id,
+                              ranking: index
+                            }).then(function(result) {
+                                rankingsCreated += 1;
+                                onAllComplete();
+                              });
 
   });
-
-
 });
 
 app.get("/rank/:participant_id/success", (req, res) => {

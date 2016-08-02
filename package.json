@@ -9,7 +9,7 @@
     "local": "./node_modules/.bin/nodemon -e js -w routes server.js",
     "knex": "./node_modules/.bin/knex"
   },
-  "author": "Lighthouse Labs",
+  "author": "Christina Hess and Albert Cherng",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.2",

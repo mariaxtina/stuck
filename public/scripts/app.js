@@ -1,3 +1,5 @@
+'use strict'
+
 $(function() {
 
   $("#enterEmail").submit(function(event){
@@ -18,7 +20,8 @@ function createParticipant() {
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <input type="email" class="form-control" name="poll[participants][${index}][email]" placeholder="enter email" value="">
+                    <input type="email" class="form-control" name="poll[participants][${index}][email]"
+                    placeholder="enter email" value="">
                   </div>
                 </div>
               </div>
@@ -31,14 +34,16 @@ function createChoice() {
               <div class="row">
                 <div class="col-md-4 col-md-offset-4">
                   <div class="form-group">
-                    <input type="text" class="form-control" name="poll[choices][${index}][title]" placeholder="Choice" value="">
+                    <input type="text" class="form-control" name="poll[choices][${index}][title]"
+                    placeholder="Choice" value="">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-4 col-md-offset-4">
                   <div class="form-group">
-                    <textarea class="form-control" rows="2" name="poll[choices][${index}][description]" placeholder="Uh huh uh huh, makes sense."></textarea>
+                    <textarea class="form-control" rows="2" name="poll[choices][${index}][description]"
+                    placeholder="Uh huh uh huh, makes sense."></textarea>
                   </div>
                 </div>
               </div>
